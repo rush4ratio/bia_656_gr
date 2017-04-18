@@ -9,10 +9,11 @@ from sklearn.preprocessing import OneHotEncoder
 # Custom modules
 from impute_missing_data import impute_missing_vars
 from text_features import extract_text_features
+from model import model_evaluation
 
 def merge_ds():
-	contracts = pd.read_csv("contract_awards-20161229-17_41_49.csv")
-	procuring_entities = pd.read_csv("procuring-entities-20161230-19_07_58.csv")
+	contracts = pd.read_csv("data/contract_awards-20161229-17_41_49.csv")
+	procuring_entities = pd.read_csv("data/procuring-entities-20161230-19_07_58.csv")
 	procuring_entities = procuring_entities.drop("rec", axis = 1)
 	merged_ds  = contracts.merge(procuring_entities, left_on="procuring_entity", right_on="name", how="left")
 	merged_ds = merged_ds.drop(["page", "name"], axis  = 1)
@@ -27,7 +28,7 @@ def return_outliers_via_IQR(series):
     q1 = series.quantile(.25)
     q3 = series.quantile(.75)
     iqr = q3 - q1
-    
+
     return (series < q1 - (1.5 * iqr)) | (series > q3 + (1.5 * iqr))
 
 def advert_date_month_conversion(x):
@@ -63,10 +64,10 @@ def main():
 	# Dealing with missing data
 	data = contracts
 
-	#Replace bids_received > tenders_sold 
+	#Replace bids_received > tenders_sold
 	data.ix[data.tenders_sold < data.bids_received ,['tenders_sold','bids_received']] = np.nan
 
-	#Replace tenders_sold <0 
+	#Replace tenders_sold <0
 	data.ix[data.tenders_sold <0 ,['tenders_sold','bids_received']] = np.nan;
 
 	# Handle 0 case
@@ -82,7 +83,7 @@ def main():
 	# Custom module to deal with missing 'bids received' and 'tenders sold'
 	data = impute_missing_vars(data)
 	contracts_type_pe = pd.get_dummies(data=data.type_of_procuring_entity_enc, prefix="proc_ent")
-	
+
 	# correct for degrees of freedom problem
 	contracts_type_pe = contracts_type_pe.drop('proc_ent_0', axis =1)
 
@@ -95,7 +96,9 @@ def main():
 
 
 	# Stack everything together
-	combined_features = np.hstack((contracts.drop('amount', axis=1).as_matrix(),description_data))
-
+	combined_features = np.hstack((contracts.drop('amount',axis=1).drop('description', axis=1).as_matrix(),description_data))
+	X = combined_features
+	Y = contracts.amount.as_matrix()
+	model_evaluation(X,Y)
 
 if __name__ == "__main__": main()
