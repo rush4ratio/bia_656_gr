@@ -16,8 +16,6 @@ def model_evaluation(X,Y):
 
 	rf_regressor= RandomForestRegressor(criterion='mae',n_jobs=-1,warm_start=True,min_samples_leaf=50,random_state=123)
 
-
-
 	grid_search.fit(X_train, Y_train)
 
 	cvres = grid_search.cv_results_
@@ -25,11 +23,13 @@ def model_evaluation(X,Y):
     	print(-mean_score, params)
 
 def model_performance(X_test, Y_test):
-    # 76022802.645 {'bootstrap': False, 'max_features': 0.2, 'n_estimators': 100}
+    # Best params => 76022802.645 {'bootstrap': False, 'max_features': 0.2, 'n_estimators': 100}
 
-    rf_regressor= RandomForestRegressor(criterion='mae',n_jobs=-1,warm_start=True,min_samples_leaf=50,random_state=123)
+    rf_regressor= RandomForestRegressor(criterion='mae',n_jobs=-1,warm_start=True,min_samples_leaf=50,random_state=123,bootstrap=False, max_features= 0.2, n_estimators=100)
+    rf_regressor.fit(X_test, Y_test)
 
-
-
-    grid_search.fit(X_test, Y_test)
+    Y_predict = rf_regressor.fit(X_test)
+    
+    print("=======MEAN ABSOLUTE ERROR=======")
+    print(mean_absolute_error(Y_test, Y_predict))
 
