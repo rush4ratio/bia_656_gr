@@ -5,11 +5,15 @@ from dateutil.parser import parse
 import datetime as dt
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
+from sklearn.model_selection import train_test_split
 
 # Custom modules
 from impute_missing_data import impute_missing_vars
 from text_features import extract_text_features
-from model import model_evaluation
+from model import model_evaluation,model_performance
+
+
+
 
 def merge_ds():
 	contracts = pd.read_csv("data/contract_awards-20161229-17_41_49.csv")
@@ -99,6 +103,8 @@ def main():
 	combined_features = np.hstack((contracts.drop('amount',axis=1).drop('description', axis=1).as_matrix(),description_data))
 	X = combined_features
 	Y = contracts.amount.as_matrix()
-	model_evaluation(X,Y)
+
+	X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.10, random_state=123)
+	model_performance(X_test,Y_test)
 
 if __name__ == "__main__": main()
