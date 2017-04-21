@@ -48,7 +48,7 @@ def main():
 	for date_col in date_cols:
 		contracts[date_col] = contracts[date_col].apply(parse)
 
-	# We don't need procurement ref nos
+	# We don't need procurement ref nos 
 	contracts = contracts.drop('procurement_ref_no', axis = 1)
 	cols = ['procuring_entity','description','contractor','type_of_procuring_entity','procuring_method']
 	for col in cols:
@@ -74,7 +74,7 @@ def main():
 	data.ix[data.tenders_sold < data.bids_received ,['tenders_sold','bids_received']] = np.nan
 
 	#Replace tenders_sold <0
-	data.ix[data.tenders_sold <0 ,['tenders_sold','bids_received']] = np.nan;
+  	data.ix[data.tenders_sold <0 ,['tenders_sold','bids_received']] = np.nan;
 
 	# Handle 0 case
 	data['tenders_sold'] = data['tenders_sold'].replace({ 0 : np.nan })

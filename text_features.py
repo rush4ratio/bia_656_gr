@@ -5,7 +5,7 @@ from scipy import sparse
 from sklearn.decomposition import TruncatedSVD
 
 def extract_text_features(description):
-	description=description.apply(lambda x: x.replace("\r","").replace("\n","").replace("\t",""))
+	description=description_data.apply(lambda x: x.replace("\r","").replace("\n","").replace("\t",""))
 	tfv = TfidfVectorizer(min_df=3, strip_accents='unicode', analyzer='word',\
 token_pattern=r'\w{1,}', ngram_range=(1,2), use_idf = 1, smooth_idf = 1, sublinear_tf = 1, stop_words='english')
 
