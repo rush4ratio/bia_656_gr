@@ -34,4 +34,5 @@ def model_performance(X_test, Y_test):
 
     print("=======MEAN ABSOLUTE ERROR=======")
     print(mean_absolute_error(Y_test, Y_predict))
+    return regressor
 

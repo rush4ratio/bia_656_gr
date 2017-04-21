@@ -6,6 +6,8 @@ import datetime as dt
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
+import pickle
+import os
 
 # Custom modules
 from impute_missing_data import impute_missing_vars
@@ -26,17 +28,17 @@ def merge_ds():
 	return merged_ds
 
 def comma_sep_to_float(num):
-    return float(num.strip().replace(",",""))
+	return float(num.strip().replace(",",""))
 
 def return_outliers_via_IQR(series):
-    q1 = series.quantile(.25)
-    q3 = series.quantile(.75)
-    iqr = q3 - q1
+	q1 = series.quantile(.25)
+	q3 = series.quantile(.75)
+	iqr = q3 - q1
 
-    return (series < q1 - (1.5 * iqr)) | (series > q3 + (1.5 * iqr))
+	return (series < q1 - (1.5 * iqr)) | (series > q3 + (1.5 * iqr))
 
 def advert_date_month_conversion(x):
-    return x.to_datetime().month
+	return x.to_datetime().month
 
 
 def main():
@@ -44,13 +46,13 @@ def main():
 	contracts.amount = contracts.amount.apply(comma_sep_to_float)
 	date_cols = ['advert_date', 'notification_date','contract_signing','completion_date']
 	for date_col in date_cols:
-	    contracts[date_col] = contracts[date_col].apply(parse)
+		contracts[date_col] = contracts[date_col].apply(parse)
 
 	# We don't need procurement ref nos
 	contracts = contracts.drop('procurement_ref_no', axis = 1)
 	cols = ['procuring_entity','description','contractor','type_of_procuring_entity','procuring_method']
 	for col in cols:
-	    contracts[col] = contracts[col].apply(lambda x: x.strip())
+		contracts[col] = contracts[col].apply(lambda x: x.strip())
 
 	# We are interested in open tenders and restricted tenders
 	mask = (contracts['procuring_method'] == 'Open tender') | (contracts['procuring_method'] == 'Restricted Tender')
@@ -89,9 +91,12 @@ def main():
 	contracts_type_pe = pd.get_dummies(data=data.type_of_procuring_entity_enc, prefix="proc_ent")
 
 	# correct for degrees of freedom problem
-	contracts_type_pe = contracts_type_pe.drop('proc_ent_0', axis =1)
 
+
+
+	contracts_type_pe = contracts_type_pe.drop('proc_ent_0', axis =1)
 	cols_to_drop = ['type_of_procuring_entity_enc','type_of_procuring_entity','advert_date','procuring_method','procuring_entity']
+
 	contracts  = pd.concat([data.drop(cols_to_drop,axis=1), contracts_type_pe], axis =1)
 
 
@@ -105,6 +110,11 @@ def main():
 	Y = contracts.amount.as_matrix()
 
 	X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.10, random_state=123)
-	model_performance(X_test,Y_test)
+	regressor = model_performance(X_test,Y_test)
+
+	os.chdir('final_model')
+	filename='rf_model'
+	pickle.dump(regressor,open(filename,'wb'))
+
 
 if __name__ == "__main__": main()
