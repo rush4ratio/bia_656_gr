@@ -1,3 +1,5 @@
+import warnings
+warnings.filterwarnings('ignore')
 import pickle
 import pandas as pd
 from dateutil.parser import parse
@@ -14,12 +16,10 @@ def advert_date_month_conversion(x):
 
 
 
-
-
 os.chdir("final_model")
 
 
-filename='rf_model'
+filename='rf_model_wo_text_features'
 
 # load the model from disk
 loaded_model = pickle.load(open(filename, 'rb'))
@@ -72,7 +72,7 @@ advert_date = ['6/26/2014']
 tenders_sold = [16]
 bids_received = [15]
 
-one_contract = {'description':description ,'type_of_procuring_entity':type_of_procuring_entity
+one_contract = {'type_of_procuring_entity':type_of_procuring_entity
                 ,'procuring_method':procuring_method,'advert_date':advert_date
                 ,'tenders_sold':tenders_sold, 'bids_received':bids_received}
 
@@ -104,11 +104,11 @@ proc_ent_dict = pd.DataFrame.from_dict(proc_ent_dict)
 
 one_contract = pd.concat([one_contract,proc_ent_dict], axis =1)
 
-description_data = extract_text_features(one_contract.description)
+# description_data = extract_text_features(one_contract.description)
 
 
-X_feat = np.hstack((one_contract.drop('description', axis=1).as_matrix(),description_data))
+X_feat = (one_contract.as_matrix())
 
-
-result = loaded_model.predict(X_feat)
-print(result)
+print(X_feat.shape)
+# result = loaded_model.predict(X_feat)
+# print(result)

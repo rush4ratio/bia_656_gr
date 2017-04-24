@@ -1,6 +1,5 @@
 import warnings
 warnings.filterwarnings('ignore')
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -89,29 +88,32 @@ def main():
 	data['procuring_method_enc'] = lb.fit_transform(data.procuring_method)
 	data['type_of_procuring_entity_enc'] = lb.fit_transform(data.type_of_procuring_entity)
 
+
 	# Custom module to deal with missing 'bids received' and 'tenders sold'
 	data = impute_missing_vars(data)
 	contracts_type_pe = pd.get_dummies(data=data.type_of_procuring_entity_enc, prefix="proc_ent")
 
 	# correct for degrees of freedom problem
-
-
-
 	contracts_type_pe = contracts_type_pe.drop('proc_ent_0', axis =1)
 	cols_to_drop = ['type_of_procuring_entity_enc','type_of_procuring_entity','advert_date','procuring_method','procuring_entity']
+
+	# Dummy vars for ad_date_months
+	contracts_ad_mnths = pd.get_dummies(data=data.ad_date_months, prefix="ad_mnth")
+	contracts_ad_mnths = contracts_ad_mnths.drop('ad_mnth_1', axis = 1)
+	data  = pd.concat([data.drop("ad_date_months",axis=1), contracts_ad_mnths], axis =1)
+
 
 	contracts  = pd.concat([data.drop(cols_to_drop,axis=1), contracts_type_pe], axis =1)
 
 
 	#get text features
-	description_data = extract_text_features(contracts.description)
+	# description_data = extract_text_features(contracts.description)
 
 
 	# Stack everything together
 	# combined_features = np.hstack((contracts.drop('amount',axis=1).drop('description', axis=1).as_matrix(),description_data))
 	
 	X =  contracts.drop(['amount', 'description'],axis=1).as_matrix()
-
 	# X = combined_features
 	Y = contracts.amount.as_matrix()
 
@@ -122,5 +124,5 @@ def main():
 	filename='rf_model_wo_text_features'
 	pickle.dump(regressor,open(filename,'wb'))
 
-
+	
 if __name__ == "__main__": main()
