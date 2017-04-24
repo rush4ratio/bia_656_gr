@@ -62,19 +62,29 @@ type_of_pe = {'Parastatal':7,
 proc_method = {'Open tender':0,'Restricted Tender':1}
 
 
+# description = ["Provision of Inpatient Medical Insurance Cover"]
+print("========================================================================")
+print("Please enter details for the contract bid you want to estimate below:")
+print("========================================================================")
+for key in type_of_pe.keys():
+    print(key)
+print("------------------------------------------------------------------------")
+type_of_procuring_entity = [input("1) Type of procuring entity: ") ]
+print("------------------------------------------------------------------------")
+for key in proc_method.keys():
+    print(key)
+procuring_method =  [input("2) Procuring method: ") ]
+print("------------------------------------------------------------------------")
+advert_date =  [input("3) Advert Date: ") ]
+print("------------------------------------------------------------------------")
+tenders_sold =  [input("4) Tenders sold: ") ]
+print("------------------------------------------------------------------------")
+bids_received = [input("5)Bids Received: ")]
+print()
 
-
-
-description = ["Provision of Inpatient Medical Insurance Cover"]
-type_of_procuring_entity = ['Parastatal']
-procuring_method = ['Open tender']
-advert_date = ['6/26/2014']
-tenders_sold = [16]
-bids_received = [15]
-
-one_contract = {'type_of_procuring_entity':type_of_procuring_entity
-                ,'procuring_method':procuring_method,'advert_date':advert_date
-                ,'tenders_sold':tenders_sold, 'bids_received':bids_received}
+one_contract = {'bids_received':bids_received,'tenders_sold':tenders_sold, 
+'type_of_procuring_entity':type_of_procuring_entity
+                ,'procuring_method':procuring_method,'advert_date':advert_date}
 
 one_contract = pd.DataFrame.from_dict(one_contract)
 
@@ -88,7 +98,6 @@ one_contract['type_of_procuring_entity_enc'] = type_of_pe[one_contract.type_of_p
 
 
 # proc_ent
-
 proc_ent_dict={}
 
 for i in range(1, 9+1):
@@ -98,17 +107,35 @@ if one_contract.type_of_procuring_entity_enc.values[0] != 0:
     for key in proc_ent_dict.keys():
         if str(one_contract.type_of_procuring_entity_enc.values[0]) in key:
              proc_ent_dict[key] = [1]
-
-
 proc_ent_dict = pd.DataFrame.from_dict(proc_ent_dict)
 
 one_contract = pd.concat([one_contract,proc_ent_dict], axis =1)
 
+
+
+# ad_date_months
+ad_mth_dict={}
+for i in range(2, 12+1):
+    ad_mth_dict['ad_mnth_' + str(i)] = 0
+
+if one_contract.ad_date_months.values[0] != 1:
+    for key in ad_mth_dict.keys():
+        if str(one_contract.ad_date_months.values[0]) in key:
+             ad_mth_dict[key] = [1]
+
+ad_mth_dict = pd.DataFrame.from_dict(ad_mth_dict)
+
+one_contract = pd.concat([one_contract,ad_mth_dict], axis =1)
+
+
+
 # description_data = extract_text_features(one_contract.description)
 
+one_contract = one_contract.drop(['advert_date','procuring_method','type_of_procuring_entity','type_of_procuring_entity_enc','ad_date_months'], axis=1)
 
-X_feat = (one_contract.as_matrix())
 
-print(X_feat.shape)
-# result = loaded_model.predict(X_feat)
-# print(result)
+X_feat = (one_contract)
+
+result = loaded_model.predict(X_feat)
+print("Prediction: KES. ")
+print(result)

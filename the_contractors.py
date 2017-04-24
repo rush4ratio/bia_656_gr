@@ -113,9 +113,10 @@ def main():
 	# Stack everything together
 	# combined_features = np.hstack((contracts.drop('amount',axis=1).drop('description', axis=1).as_matrix(),description_data))
 	
-	X =  contracts.drop(['amount', 'description'],axis=1).as_matrix()
-	# X = combined_features
-	Y = contracts.amount.as_matrix()
+	X =  contracts.drop(['amount', 'description'],axis=1)
+	print(X.columns)
+
+	Y = contracts.amount
 
 	X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.10, random_state=123)
 	regressor = model_performance(X_test,Y_test)
