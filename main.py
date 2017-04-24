@@ -6,6 +6,9 @@ from sklearn.preprocessing import OneHotEncoder
 
 from text_features import extract_text_features
 
+import os
+
+
 def advert_date_month_conversion(x):
     return x.to_datetime().month
 
@@ -13,7 +16,7 @@ def advert_date_month_conversion(x):
 
 
 
-
+os.chdir("final_model")
 
 
 filename='rf_model'
@@ -62,7 +65,7 @@ proc_method = {'Open tender':0,'Restricted Tender':1}
 
 
 
-description = ['Provision of Inpatient Medical Insurance Cover']
+description = ["Provision of Inpatient Medical Insurance Cover"]
 type_of_procuring_entity = ['Parastatal']
 procuring_method = ['Open tender']
 advert_date = ['6/26/2014']
