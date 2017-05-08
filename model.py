@@ -15,7 +15,8 @@ def model_evaluation(X,Y):
     param_grid = [{'bootstrap': [False], 'n_estimators': [50,100], 'max_features':['sqrt',0.2]},]
 
     rf_regressor= RandomForestRegressor(criterion='mae',n_jobs=-1,warm_start=True,min_samples_leaf=50,random_state=123)
-
+    grid_search = GridSearchCV(rf_regressor, param_grid, cv=5, scoring='neg_mean_absolute_error')
+   
     grid_search.fit(X_train, Y_train)
 
     cvres = grid_search.cv_results_
